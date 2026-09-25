@@ -17,7 +17,7 @@ const users: User[] = [
 
 export function UserList() {
   return (
-    <div
+    <div    
       className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2"
       style={{ maxWidth: '600px', margin: '0 auto' }}
     >
