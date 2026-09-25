@@ -8,46 +8,62 @@ export function UserCard({ user }: { user: User }) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const favorited = isFavorite(user.id);
 
+  const initials = user.name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
     <Link
       href={`/users/${user.id}`}
-      className={`group flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-card bg-background/80 p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-border/80 hover:shadow-md hover:shadow-black/5 hover:bg-background dark:border-border/30 dark:bg-card dark:hover:border-foreground/10 dark:hover:shadow-lg dark:hover:shadow-black/20 ${
-        favorited ? 'ring-1 ring-red-400/30' : ''
-      }`}
+      className="group block rounded-xl border border-white/5 bg-neutral-900/95 p-4 shadow-lg backdrop-blur-sm transition-all duration-200 hover:border-white/10 hover:shadow-xl hover:shadow-black/30 hover:-translate-y-0.5"
     >
-      {/* Avatar + info */}
-      <div className="flex items-center gap-3 min-w-0">
-        {/* Avatar: gradient circle dengan initial - scale on hover */}
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-400 via-indigo-400 to-indigo-500 text-sm font-semibold text-white shadow-sm shadow-indigo-500/20 transition-transform duration-300 group-hover:scale-105 group-active:scale-95">
-          {user.name.charAt(0).toUpperCase()}
+      {/* Header: avatar + info */}
+      <div className="flex items-start gap-4">
+        {/* Avatar: circular dark */}
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-neutral-800 text-sm font-semibold tracking-wide text-white/80 shadow-inner">
+          {initials}
         </div>
 
-        {/* User info dengan visual hierarchy */}
-        <div className="min-w-0">
-          <h3 className="truncate text-sm font-semibold text-foreground tracking-tight">
+        {/* User info */}
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-sm font-semibold text-white/90">
             {user.name}
           </h3>
-          <p className="truncate text-xs text-muted-foreground">
-            {user.email}
-          </p>
+          <p className="truncate text-xs text-white/40">{user.email}</p>
+          {user.company && (
+            <p className="truncate text-xs text-white/30">{user.company}</p>
+          )}
         </div>
       </div>
 
-      {/* Favorite button — tetap ada di dalam card tapi tidak navigasi */}
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          toggleFavorite(user);
-        }}
-        aria-label={favorited ? 'Hapus dari favorit' : 'Tambah ke favorit'}
-        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-0 transition-all duration-200 ${
-          favorited
-            ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:scale-105'
-            : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-red-500 hover:scale-105 dark:bg-foreground/5 dark:text-muted-foreground'
-        }`}
-      >
-        <Heart className={`h-4.5 w-4.5 transition-all duration-300 ${favorited ? 'fill-current scale-105' : ''}`} />
-      </button>
+      {/* Divider */}
+      <div className="my-3 h-px w-full bg-white/5" />
+
+      {/* Footer: two pill buttons */}
+      <div className="flex items-center gap-2">
+        {/* View Profile button */}
+        <span className="inline-flex h-8 flex-1 items-center justify-center rounded-full bg-white/10 px-4 text-xs font-medium text-white/80 transition-colors hover:bg-white/15 hover:text-white">
+          View Profile
+        </span>
+
+        {/* Favourite button */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            toggleFavorite(user);
+          }}
+          aria-label={favorited ? 'Hapus dari favorit' : 'Tambah ke favorit'}
+          className={`inline-flex h-8 w-24 items-center justify-center rounded-full border-0 bg-white/10 px-3 text-xs font-medium text-white/80 transition-all duration-200 hover:bg-white/15 hover:text-white ${
+            favorited ? 'text-red-400 hover:bg-red-500/10' : ''
+          }`}
+        >
+          <Heart className={`mr-1.5 h-3.5 w-3.5 ${favorited ? 'fill-current' : ''}`} />
+          Favourite
+        </button>
+      </div>
     </Link>
   );
 }

@@ -3,7 +3,7 @@ import { UserList } from '@/components/user-list';
 export default function UsersPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-10 sm:px-6 sm:py-12">
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 py-10 sm:px-6 sm:py-12">
         {/* Header section */}
         <div className="mb-8">
           <h1 className="text-3xl font-heading font-semibold tracking-tight text-foreground sm:text-4xl">
@@ -24,7 +24,7 @@ export default function UsersPage() {
 
         {/* Footer count */}
         <div className="mt-8 text-center text-xs text-muted-foreground">
-          4 user tersedia
+          8 user tersedia
         </div>
       </main>
     </div>

@@ -1,14 +1,13 @@
 import { notFound } from 'next/navigation';
-import { Heart, Mail, User } from 'lucide-react';
+import { Heart, Mail, Building2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { useFavorites } from '@/context/favorites-context';
 
 // Data user statis — nanti bisa diganti pake API
-const users: Record<string, { id: string; name: string; email: string }> = {
-  '1': { id: '1', name: 'Andi Saputra', email: 'andi@example.com' },
-  '2': { id: '2', name: 'Budi Santoso', email: 'budi@example.com' },
-  '3': { id: '3', name: 'Citra Dewi', email: 'citra@example.com' },
-  '4': { id: '4', name: 'Dian Permata', email: 'dian@example.com' },
+const users: Record<string, { id: string; name: string; email: string; company?: string }> = {
+  '1': { id: '1', name: 'Andi Saputra', email: 'andi@example.com', company: 'PT Maju Kreatif' },
+  '2': { id: '2', name: 'Budi Santoso', email: 'budi@example.com', company: 'CV Mandiri Digital' },
+  '3': { id: '3', name: 'Citra Dewi', email: 'citra@example.com', company: 'StartUp Lokal' },
+  '4': { id: '4', name: 'Dian Permata', email: 'dian@example.com', company: 'Freelance Designer' },
 };
 
 export async function generateStaticParams() {
@@ -23,60 +22,93 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
     notFound();
   }
 
+  const initials = user.name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-neutral-950">
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-10 sm:px-6 sm:py-12">
         {/* Back link */}
         <Link
           href="/users"
-          className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline"
+          className="mb-6 flex items-center gap-1.5 text-sm text-white/40 transition-colors hover:text-white/70 hover:underline"
         >
-          <User className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" />
           Kembali ke Users
         </Link>
 
-        {/* Profile card */}
-        <div className="flex flex-col gap-6">
-          {/* Avatar section — big card style */}
-          <div className="flex flex-col items-center gap-4 rounded-2xl border border-border/60 bg-card p-8 shadow-sm dark:border-border/30 dark:bg-card">
-            {/* Avatar — gradient circle besar */}
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-violet-400 via-indigo-400 to-indigo-500 text-3xl font-bold text-white shadow-lg shadow-indigo-500/20">
-              {user.name.charAt(0).toUpperCase()}
+        {/* Profile card — sama seperti card di list */}
+        <div className="flex flex-col gap-3">
+          {/* Card utama */}
+          <div className="flex flex-col gap-4 rounded-xl border border-white/5 bg-neutral-900/95 p-6 shadow-lg backdrop-blur-sm">
+            {/* Header: avatar + info */}
+            <div className="flex items-start gap-4">
+              {/* Avatar: circular dark */}
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-neutral-800 text-2xl font-semibold tracking-wide text-white/80 shadow-inner">
+                {initials}
+              </div>
+
+              {/* User info */}
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl font-semibold text-white/90">
+                  {user.name}
+                </h1>
+                <p className="text-sm text-white/40">{user.email}</p>
+                {user.company && (
+                  <p className="text-sm text-white/30 flex items-center gap-1.5 mt-0.5">
+                    <Building2 className="h-3 w-3 shrink-0" />
+                    {user.company}
+                  </p>
+                )}
+              </div>
             </div>
 
-            <h1 className="text-2xl font-heading font-semibold tracking-tight text-foreground">
-              {user.name}
-            </h1>
+            {/* Divider */}
+            <div className="my-1 h-px w-full bg-white/5" />
 
-            {/* Badge: apakah favorit? */}
-            <div className="flex items-center gap-2 rounded-full border border-border/60 bg-muted/50 px-3 py-1 text-xs text-muted-foreground dark:bg-foreground/[0.04]">
-              <Heart className="h-3 w-3 text-red-500" />
-              {(() => {
-                // CEK FAVORIT — tapi nanti kalau pakai server component perlu cara lain
-                // Untungnya ini client-side context, nanti kita wrap
-                return 'Status favorit';
-              })()}
+            {/* Footer: two pill buttons */}
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-9 flex-1 items-center justify-center rounded-full bg-white/10 px-4 text-sm font-medium text-white/80 transition-colors hover:bg-white/15 hover:text-white">
+                View Profile
+              </span>
+
+              <span className="inline-flex h-9 w-28 items-center justify-center rounded-full bg-white/10 px-3 text-sm font-medium text-white/80 transition-colors hover:bg-white/15 hover:text-white">
+                <Heart className="mr-1.5 h-4 w-4" />
+                Favourite
+              </span>
             </div>
           </div>
 
           {/* Info section */}
-          <div className="rounded-xl border border-border/60 bg-card p-5 shadow-sm dark:border-border/30 dark:bg-card">
-            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="rounded-xl border border-white/5 bg-neutral-900/95 p-5 shadow-sm">
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/40">
               Informasi
             </h2>
 
-            <div className="flex flex-col gap-3">
-              {/* Email */}
-              <div className="flex items-center gap-3 rounded-lg border border-border/40 bg-background/50 p-3 dark:border-border/20">
-                <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <div className="flex flex-col gap-2.5">
+              <div className="flex items-center gap-3 rounded-lg bg-white/[0.03] p-3">
+                <Mail className="h-4 w-4 shrink-0 text-white/30" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Email</p>
-                  <p className="text-sm font-medium text-foreground">{user.email}</p>
+                  <p className="text-xs text-white/40">Email</p>
+                  <p className="text-sm text-white/80">{user.email}</p>
                 </div>
               </div>
 
-              {/* Action: Tambah/Remove Favorit — nanti akan diaktifkan setelah kita bikin client wrapper */}
-              <div className="mt-2 rounded-lg border border-border/40 bg-muted/30 p-3 text-center text-xs text-muted-foreground dark:bg-foreground/[0.02]">
+              {user.company && (
+                <div className="flex items-center gap-3 rounded-lg bg-white/[0.03] p-3">
+                  <Building2 className="h-4 w-4 shrink-0 text-white/30" />
+                  <div>
+                    <p className="text-xs text-white/40">Perusahaan</p>
+                    <p className="text-sm text-white/80">{user.company}</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-1 rounded-lg bg-white/[0.03] p-3 text-center text-xs text-white/30">
                 Kontak dan detail lainnya akan muncul di sini.
               </div>
             </div>

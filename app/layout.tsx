@@ -1,4 +1,5 @@
 import { FavoritesProvider } from '@/context/favorites-context';
+import { SearchProvider } from '@/context/search-context';
 import { Navbar } from '@/components/navbar';
 import './globals.css';
 
@@ -25,10 +26,12 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <FavoritesProvider>
-          <Navbar />
-          {children}
-        </FavoritesProvider>
+        <SearchProvider>
+          <FavoritesProvider>
+            <Navbar />
+            {children}
+          </FavoritesProvider>
+        </SearchProvider>
       </body>
     </html>
   );
