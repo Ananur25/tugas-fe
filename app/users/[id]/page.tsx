@@ -1,33 +1,63 @@
-import { notFound } from 'next/navigation';
-import { Heart, Mail, Building2, ArrowLeft } from 'lucide-react';
+'use client';
+
+import { Heart, Mail, Building2, ArrowLeft, Loader } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useFavorites, User } from '@/context/favorites-context';
 
-// Data user statis — nanti bisa diganti pake API
-const users: Record<string, { id: string; name: string; email: string; company?: string }> = {
-  '1': { id: '1', name: 'Andi Saputra', email: 'andi@example.com', company: 'PT Maju Kreatif' },
-  '2': { id: '2', name: 'Budi Santoso', email: 'budi@example.com', company: 'CV Mandiri Digital' },
-  '3': { id: '3', name: 'Citra Dewi', email: 'citra@example.com', company: 'StartUp Lokal' },
-  '4': { id: '4', name: 'Dian Permata', email: 'dian@example.com', company: 'Freelance Designer' },
-};
+export default function UserProfilePage({ params }: { params: Promise<{ id: string }> }): React.ReactElement {
+  const router = useRouter();
+  const [id, setId] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
-export async function generateStaticParams() {
-  return Object.keys(users).map((id) => ({ id }));
-}
+  useEffect(() => {
+    params.then((params) => {
+      setId(params.id);
+    });
+  }, [params]);
 
-export default async function UserProfilePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const user = users[id];
+  useEffect(() => {
+    if (!id) return;
+    
+    const fetchUser = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/users/${id}`);
+        if (!response.ok) {
+          throw new Error('User not found');
+        }
+        const data = await response.json();
+        setUser(data.data);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        router.replace('/users');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!user) {
-    notFound();
+    fetchUser();
+  }, [id, router]);
+
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen flex-col bg-neutral-950 items-center justify-center">
+        <Loader className="h-8 w-8 animate-spin text-white/40" />
+      </div>
+    );
   }
 
   const initials = user.name
     .split(' ')
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join('')
     .toUpperCase()
     .slice(0, 2);
+
+  const favorited = isFavorite(user.id);
 
   return (
     <div className="flex min-h-screen flex-col bg-neutral-950">
@@ -41,7 +71,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
           Kembali ke Users
         </Link>
 
-        {/* Profile card — sama seperti card di list */}
+        {/* Profile card */}
         <div className="flex flex-col gap-3">
           {/* Card utama */}
           <div className="flex flex-col gap-4 rounded-xl border border-white/5 bg-neutral-900/95 p-6 shadow-lg backdrop-blur-sm">
@@ -76,10 +106,16 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 View Profile
               </span>
 
-              <span className="inline-flex h-9 w-28 items-center justify-center rounded-full bg-white/10 px-3 text-sm font-medium text-white/80 transition-colors hover:bg-white/15 hover:text-white">
-                <Heart className="mr-1.5 h-4 w-4" />
+              <button
+                onClick={() => toggleFavorite(user)}
+                aria-label={favorited ? 'Hapus dari favorit' : 'Tambah ke favorit'}
+                className={`inline-flex h-9 w-28 items-center justify-center rounded-full bg-white/10 px-3 text-sm font-medium text-white/80 transition-all duration-200 hover:bg-white/15 ${
+                  favorited ? 'text-red-400 hover:bg-red-500/10' : ''
+                }`}
+              >
+                <Heart className={`mr-1.5 h-4 w-4 ${favorited ? 'fill-current' : ''}`} />
                 Favourite
-              </span>
+              </button>
             </div>
           </div>
 

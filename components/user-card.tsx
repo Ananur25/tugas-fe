@@ -2,18 +2,29 @@
 
 import Link from 'next/link';
 import { Heart } from 'lucide-react';
-import { User, useFavorites } from '@/context/favorites-context';
+import { User } from '@/context/favorites-context';
 
-export function UserCard({ user }: { user: User }) {
-  const { isFavorite, toggleFavorite } = useFavorites();
-  const favorited = isFavorite(user.id);
+interface UserCardProps {
+  user: User;
+  isFavorited?: boolean;
+  onToggle?: (user: User) => void;
+}
 
+export function UserCard({ user, isFavorited = false, onToggle }: UserCardProps) {
   const initials = user.name
     .split(' ')
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join('')
     .toUpperCase()
     .slice(0, 2);
+
+  const handleToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onToggle) {
+      onToggle(user);
+    }
+  };
 
   return (
     <Link
@@ -51,16 +62,13 @@ export function UserCard({ user }: { user: User }) {
 
         {/* Favourite button */}
         <button
-          onClick={(e) => {
-            e.preventDefault();
-            toggleFavorite(user);
-          }}
-          aria-label={favorited ? 'Hapus dari favorit' : 'Tambah ke favorit'}
-          className={`inline-flex h-8 w-24 items-center justify-center rounded-full border-0 bg-white/10 px-3 text-xs font-medium text-white/80 transition-all duration-200 hover:bg-white/15 hover:text-white ${
-            favorited ? 'text-red-400 hover:bg-red-500/10' : ''
+          onClick={handleToggle}
+          aria-label={isFavorited ? 'Hapus dari favorit' : 'Tambah ke favorit'}
+          className={`inline-flex h-8 w-24 items-center justify-center rounded-full border-0 bg-white/10 px-3 text-xs font-medium text-white/80 transition-all duration-200 hover:bg-white/15 ${
+            isFavorited ? 'text-red-400 hover:bg-red-500/10' : ''
           }`}
         >
-          <Heart className={`mr-1.5 h-3.5 w-3.5 ${favorited ? 'fill-current' : ''}`} />
+          <Heart className={`mr-1.5 h-3.5 w-3.5 ${isFavorited ? 'fill-current' : ''}`} />
           Favourite
         </button>
       </div>
